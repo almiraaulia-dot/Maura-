@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 15th Birthday Maura! 🎉</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            color: #333;
+            position: relative;
+        }
+
+        /* Animasi Latar Belakang Hidup */
+        .confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #fff;
+            opacity: 0.7;
+            border-radius: 50%;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-20px) rotate(0deg); top: 0; }
+            100% { transform: translateY(100vh) rotate(360deg); top: 100%; }
+        }
+
+        /* Konten Utama */
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            z-index: 10;
+            margin: 20px;
+            animation: popIn 1s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        h1 {
+            color: #ff4081;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #6a1b9a;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Musik Kontrol */
+        .audio-control {
+            margin-bottom: 20px;
+            background: #ff4081;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .audio-control:hover {
+            background: #e91e63;
+            transform: scale(1.05);
+        }
+
+        /* Game Section */
+        .game-section {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #ff4081;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .game-section h3 {
+            color: #ff4081;
+            margin-bottom: 10px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            width: 80px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+        }
+
+        input[type="number"]:focus {
+            border-color: #ff4081;
+        }
+
+        .btn-guess {
+            background: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-guess:hover {
+            background: #8e24aa;
+        }
+
+        #game-message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="confetti-container" id="confetti-bg"></div>
+
+    <div class="card">
+        <h1>Selamat tambah tua🙊, Maura! 🎉</h1>
+        <h2>Happy Birthday ! ✨</h2>
+        
+        <p>Selamat anda telah memasuki usia yang ke-15! Semoga di tahun ini berbeda dengan tahun-tahun sebelumnya, sehat selalu, lebih banyak kejutannya,meraih semua impianmu, dan harimu selalu dipenuhi keceriaan. You are amazing!</p>
+
+        <button class="audio-control" id="play-btn" onclick="toggleAudio()">🎵 Putar Lagu Ulang Tahun</button>
+        <audio id="bg-music" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+            <source src="https://actions.google.com/sounds/v1/celebrations/birthday_horn.ogg" type="audio/ogg">
+        </audio>
+
+        <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+
+        <div class="game-section">
+            <h3>🎮 Game Angka Keberuntungan Maura</h3>
+            <p style="font-size: 0.9rem; color: #666;">saya telah memilih angka rahasia antara <b>1 sampai 15</b>. Bisakah kamu menebaknya?</p>
+            
+            <input type="number" id="guess-input" min="1" max="15" placeholder="?">
+            <button class="btn-guess" onclick="checkGuess()">Tebak!</button>
+            
+            <p id="game-message">Masukkan angka lalu klik Tebak!</p>
+        </div>
+    </div>
+
+    <script>
+        // Membuat efek latar belakang hidup (konfeti berjatuhan)
+        const confettiContainer = document.getElementById('confetti-bg');
+        const colors = ['#ff4081', '#00e676', '#00b0ff', '#ffea00', '#d500f9', '#ff6d00'];
+
+        for (let i = 0; i < 70; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's'; // Antara 2-5 detik
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.width = Math.random() * 8 + 6 + 'px';
+            confetti.style.height = confetti.style.width;
+            confetti.style.animationDelay = Math.random() * 5 + 's';
+            confettiContainer.appendChild(confetti);
+        }
+
+        // Kontrol Suara (Menghindari blokir otomatis oleh browser modern)
+        const music = document.getElementById('bg-music');
+        const playBtn = document.getElementById('play-btn');
+        
+        // Menggunakan musik instrumental publik agar aman diputar
+        // Catatan: Jika ingin mengganti lagu spesifik "Happy Birthday Piano", ganti link src di atas dengan link file .mp3 yang valid.
+        music.src = "https://cdn.pixabay.com/download/audio/2022/11/22/audio_febc508f5e.mp3?filename=happy-birthday-to-you-piano-version-126354.mp3"; 
+
+        function toggleAudio() {
+            if (music.paused) {
+                music.play().then(() => {
+                    playBtn.innerText = "⏸ Pause Lagu";
+                }).catch(err => {
+                    alert("Klik layar sekali lagi untuk mengizinkan musik diputar!");
+                });
+            } else {
+                music.pause();
+                playBtn.innerText = "🎵 Putar Lagu Ulang Tahun";
+            }
+        }
+
+        // Logika Game Tebak Angka (1-15 sesuai usia Maura)
+        const secretNumber = Math.floor(Math.random() * 15) + 1;
+        let attempts = 0;
+
+        function checkGuess() {
+            const inputElement = document.getElementById('guess-input');
+            const messageElement = document.getElementById('game-message');
+            const userGuess = parseInt(inputElement.value);
+
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > 15) {
+                messageElement.style.color = "red";
+                messageElement.innerText = "Hei! Masukkan angka yang valid antara 1 sampai 15 ya.";
+                return;
+            }
+
+            attempts++;
+
+            if (userGuess === secretNumber) {
+                messageElement.style.color = "#00c853";
+                messageElement.innerHTML = `🎉 Keren Banget idola Maura! Kamu BENAR! <br> Angka rahasianya adalah ${secretNumber}. <br> Kamu berhasil menebak dalam ${attempts} kali percobaan! ✨`;
+                inputElement.disabled = true;
+            } else if (userGuess < secretNumber) {
+                messageElement.style.color = "#333";
+                messageElement.innerText = "Terlalu KECIL! Coba angka yang lebih besar. 😉";
+            } else {
+                messageElement.style.color = "#333";
+                messageElement.innerText = "Terlalu BESAR! Coba angka yang lebih kecil. 😉";
+            }
+            
+            inputElement.value = '';
+            inputElement.focus();
+        }
+    </script>
+</body>
+</html>
