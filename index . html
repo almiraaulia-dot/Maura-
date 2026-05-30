@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spesial Ulang Tahun maura</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Poppins', sans-serif; background: #0f0c20; color: #fff; }
+
+        /* Halaman Pembuka (Kado) */
+        #gift-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1f1a3a, #0f0c20);
+            z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        .gift-box {
+            font-size: 80px; cursor: pointer; animation: wobble 1s infinite; transition: transform 0.3s;
+        }
+        .gift-box:hover { transform: scale(1.2); }
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-8deg); }
+            75% { transform: rotate(8deg); }
+        }
+        #gift-overlay p { margin-top: 20px; font-size: 1.2rem; letter-spacing: 2px; color: #ff758c; text-align: center; }
+
+        /* Latar Belakang Utama */
+        #canvas-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        
+        .main-container {
+            position: relative; width: 100%; height: 100%; display: flex;
+            align-items: center; justify-content: center; z-index: 10; opacity: 0;
+            transition: opacity 1s ease; padding: 20px; flex-wrap: wrap; overflow-y: auto;
+        }
+
+        /* Kartu Ucapan Spesial 3D */
+        .card {
+            background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); padding: 35px; border-radius: 24px;
+            text-align: center; max-width: 450px; width: 100%; margin: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); transform-style: preserve-3d; transform: perspective(1000px);
+        }
+        h1 { font-size: 2.3rem; background: linear-gradient(45deg, #ff758c, #ff7eb3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; font-weight: 800; }
+        h2 { font-size: 1.3rem; color: #a29bfe; margin-bottom: 20px; }
+        p.greeting { font-size: 0.95rem; line-height: 1.6; color: #ddd; margin-bottom: 20px; }
+
+        /* Tombol Musik Minimalis */
+        .music-btn {
+            background: linear-gradient(45deg, #ff758c, #ff7eb3); border: none; padding: 10px 25px;
+            border-radius: 30px; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(255,117,140,0.4); transition: 0.3s;
+        }
+        .music-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255,117,140,0.6); }
+
+        /* Wadah Game */
+        .game-card {
+            background: rgba(15, 12, 32, 0.8); border: 2px solid #ff758c;
+            padding: 20px; border-radius: 24px; max-width: 400px; width: 100%; margin: 15px; text-align: center;
+        }
+        #gameCanvas { background: #1a1635; border-radius: 12px; margin: 15px 0; display: none; width: 100%; max-width: 320px; height: 250px; }
+        .game-btn { background: #6c5ce7; border: none; padding: 10px 20px; color: white; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .game-btn:hover { background: #a29bfe; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <audio id="birthday-track" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/11/22/audio_febc508f5e.mp3?filename=happy-birthday-to-you-piano-version-126354.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="gift-overlay" onclick="openGift()">
+        <div class="gift-box">🎁</div>
+        <p>ADA KIRIMAN SPESIAL UNTUKMU dari pacarnya kaito<br><span style="font-size: 0.8rem; color: #aaa;">(Ketuk kadonya untuk membuka)</span></p>
+    </div>
+
+    <canvas id="canvas-bg"></canvas>
+
+    <div class="main-container" id="main-content">
+        
+        <div class="card" id="tilt-card">
+            <h1>Selamat tambah tua, Maura! 🎉</h1>
+            <h2>✨ Happy Birthday to you ✨</h2>
+            <p class="greeting">
+                "Selamat!!! Semoga tahun ini berbeda dengan tahun-tahun sebelumnya, semoga kesehatan, keberuntungan, dan impian-impian hebat yang menjadi nyata. Tetaplah menjadi idola yang luar biasa!"
+            </p>
+            <button class="music-btn" onclick="toggleMusic()">⏸ Jeda Musik</button>
+        </div>
+
+        <div class="game-card">
+            <h3 style="color: #ff758c;">🎂 Game Spesial: Tangkap Kue!</h3>
+            <p style="font-size: 0.85rem; margin-top: 5px; color: #ccc;">Gerakkan piring dengan <b>Kursor Tikus / Geser Layar HP</b>. Kumpulkan kue dalam 15 detik!</p>
+            
+            <div style="display: flex; justify-content: center;">
+                <canvas id="gameCanvas" width="320" height="250"></canvas>
+            </div>
+            
+            <button class="game-btn" id="start-game-btn" onclick="startGame()">Mulai Game</button>
+            <div id="score-board" style="margin-top: 10px; font-weight: bold; display: none;">Skor: <span id="score-val">0</span> | Waktu: <span id="time-val">15</span>s</div>
+        </div>
+
+    </div>
+
+    <script>
+        const track = document.getElementById('birthday-track');
+
+        // Fungsi Buka Kado Kejutan
+        function openGift() {
+            document.getElementById('gift-overlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('gift-overlay').style.display = 'none';
+                document.getElementById('main-content').style.opacity = '1';
+                track.play().catch(() => console.log("Autoplay diblokir browser, pengguna harus interaksi dahulu"));
+            }, 800);
+            initBgParticles();
+        }
+
+        function toggleMusic() {
+            const btn = document.querySelector('.music-btn');
+            if (track.paused) { track.play(); btn.innerText = "⏸ Jeda Musik"; }
+            else { track.pause(); btn.innerText = "🎵 Putar Musik"; }
+        }
+
+        // --- EFEK LATAR BELAKANG PARTIKEL HIDUP ---
+        const bgCanvas = document.getElementById('canvas-bg');
+        const bgCtx = bgCanvas.getContext('2d');
+        let particles = [];
+
+        function initBgParticles() {
+            resizeBgCanvas();
+            window.addEventListener('resize', resizeBgCanvas);
+            for(let i=0; i<60; i++) {
+                particles.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height,
+                    radius: Math.random() * 3 + 1,
+                    color: ['#ff758c', '#ff7eb3', '#a29bfe', '#74b9ff'][Math.floor(Math.random()*4)],
+                    speedY: Math.random() * 1 + 0.5,
+                    speedX: Math.random() * 0.5 - 0.25
+                });
+            }
+            animateBg();
+        }
+
+        function resizeBgCanvas() { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; }
+
+        function animateBg() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            particles.forEach(p => {
+                bgCtx.beginPath();
+                bgCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                bgCtx.fillStyle = p.color;
+                bgCtx.shadowBlur = 10;
+                bgCtx.shadowColor = p.color;
+                bgCtx.fill();
+                p.y -= p.speedY; p.x += p.speedX;
+                if(p.y < -10) { p.y = bgCanvas.height + 10; p.x = Math.random() * bgCanvas.width; }
+            });
+            requestAnimationFrame(animateBg);
+        }
+
+        // --- EFEK KARTU 3D TILT ---
+        const card = document.getElementById('tilt-card');
+        document.addEventListener('mousemove', (e) => {
+            let xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            let yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg) perspective(1000px)`;
+        });
+
+        // --- GAME INTERAKTIF: TANGKAP KUE ---
+        const gameCanvas = document.getElementById('gameCanvas');
+        const gCtx = gameCanvas.getContext('2d');
+        let gameInterval, timerInterval;
+        let score = 0, timeLeft = 15;
+        let basket = { x: 135, width: 50, height: 10 };
+        let items = [];
+
+        function startGame() {
+            document.getElementById('start-game-btn').style.display = 'none';
+            gameCanvas.style.display = 'block';
+            document.getElementById('score-board').style.display = 'block';
+            score = 0; timeLeft = 15; items = [];
+            document.getElementById('score-val').innerText = score;
+            document.getElementById('time-val').innerText = timeLeft;
+
+            // Kontrol Mouse & Sentuhan HP
+            gameCanvas.addEventListener('mousemove', (e) => {
+                let rect = gameCanvas.getBoundingClientRect();
+                basket.x = e.clientX - rect.left - basket.width/2;
+            });
+            gameCanvas.addEventListener('touchmove', (e) => {
+                let rect = gameCanvas.getBoundingClientRect();
+                basket.x = e.touches[0].clientX - rect.left - basket.width/2;
+            });
+
+            gameInterval = setInterval(updateGame, 1000/60);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time-val').innerText = timeLeft;
+                if(timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        function updateGame() {
+            gCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // Gambar Keranjang/Piring
+            gCtx.fillStyle = '#ff758c';
+            gCtx.fillRect(basket.x, gameCanvas.height - 20, basket.width, basket.height);
+
+            // Spawn Item secara Acak
+            if(Math.random() < 0.03) {
+                items.push({
+                    x: Math.random() * (gameCanvas.width - 20), y: 0,
+                    type: Math.random() > 0.25 ? 'cake' : 'bomb', speed: Math.random() * 2 + 2
+                });
+            }
+
+            // Gerakkan & Gambar Item
+            items.forEach((item, index) => {
+                item.y += item.speed;
+                gCtx.font = "20px Arial";
+                gCtx.fillText(item.type === 'cake' ? '🎂' : '💣', item.x, item.y);
+
+                // Deteksi Tabrakan
+                if(item.y >= gameCanvas.height - 25 && item.x > basket.x - 10 && item.x < basket.x + basket.width) {
+                    if(item.type === 'cake') { score++; document.getElementById('score-val').innerText = score; }
+                    else { score = Math.max(0, score - 2); document.getElementById('score-val').innerText = score; }
+                    items.splice(index, 1);
+                } else if(item.y > gameCanvas.height) {
+                    items.splice(index, 1);
+                }
+            });
+        }
+
+        function endGame() {
+            clearInterval(gameInterval); clearInterval(timerInterval);
+            gCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            gCtx.fillStyle = '#fff'; gCtx.font = "16px Poppins"; gCtx.textAlign = "center";
+            
+            if(score >= 15) {
+                gCtx.fillText("🎉 LUAR BIASA MAURA!", gameCanvas.width/2, gameCanvas.height/2 - 20);
+                gCtx.fillText(`Kamu menang dengan skor ${score}!`, gameCanvas.width/2, gameCanvas.height/2 + 10);
+            } else {
+                gCtx.fillText("Permainan Selesai!", gameCanvas.width/2, gameCanvas.height/2 - 20);
+                gCtx.fillText(`Skor Maura: ${score}. Coba lagi yuk!`, gameCanvas.width/2, gameCanvas.height/2 + 10);
+            }
+            document.getElementById('start-game-btn').style.display = 'inline-block';
+            document.getElementById('start-game-btn').innerText = "Main Lagi";
+        }
+    </script>
+</body>
+</html>
